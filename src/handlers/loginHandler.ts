@@ -1,5 +1,5 @@
 import express, {Request, Response} from 'express';
-import { UserStore } from '../model/users';
+import { UserStore } from '../model/usersModel';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
@@ -8,7 +8,7 @@ dotenv.config();
 const store = new UserStore();
 const loginRoutes = express.Router();
 
-loginRoutes.get('/', async (req: Request, res: Response) => {
+loginRoutes.post('/', async (req: Request, res: Response) => {
     try {
         const newUser = await store.authenticate(req.body.first_name, req.body.last_name, req.body.password);
         if (newUser != null) {

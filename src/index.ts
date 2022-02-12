@@ -1,10 +1,12 @@
 import express from 'express';
-import usersRoutes from './handlers/users';
-import loginRoutes from './handlers/login';
+import usersRoutes from './handlers/usersHandler';
+import loginRoutes from './handlers/loginHandler';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import {User, UserStore} from './model/users'
+import {User, UserStore} from './model/usersModel'
 import jwt from 'jsonwebtoken';
+import productsRoutes from './handlers/productsHandler';
+import ordersRoutes from './handlers/ordersHandler';
 
 dotenv.config();
 
@@ -14,7 +16,9 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 app.use('/users', usersRoutes);
+app.use('/products', productsRoutes);
 app.use('/login', loginRoutes);
+app.use('/orders', ordersRoutes);
 
 //Create default admin account upon startup to allow initial login and log JWT
 

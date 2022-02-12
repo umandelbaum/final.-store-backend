@@ -1,7 +1,6 @@
 import client from '../database';
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
-import { resourceLimits } from 'worker_threads';
 
 dotenv.config();
 
@@ -18,7 +17,6 @@ export type User = {
 export class UserStore {
 	
 	async index(): Promise<User[]> {
-		// @ts-ignore
 		try{
 			const conn = await client.connect();
 			const sql = 'SELECT * from users';
@@ -31,7 +29,6 @@ export class UserStore {
 	};
 
 	async show(id: string): Promise<User | null> {
-		// @ts-ignore
 		try {
 			const conn = await client.connect();
 			const sql = 'SELECT * from users where id=($1)';
@@ -48,7 +45,6 @@ export class UserStore {
 	};
 
 	async create(u: User): Promise<User | null> {
-		// @ts-ignore
 		try {
 			const conn = await client.connect();
 			//First check if user name is in use
@@ -86,7 +82,7 @@ export class UserStore {
 					return user;
 		  		}
 			}
-			return null
+			return null;
 	 	} catch (err) {
 			 throw new Error(`Could not access database to authenticate. Error: ${err}`);
 		 	}

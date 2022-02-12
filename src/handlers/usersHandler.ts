@@ -1,9 +1,8 @@
 import express, {Request, Response} from 'express';
-import { User, UserStore } from '../model/users';
+import { User, UserStore } from '../model/usersModel';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import verifyAuthToken from '../services/auth';
-import e from 'express';
 
 dotenv.config();
 
@@ -15,7 +14,7 @@ usersRoutes.get('/', verifyAuthToken, async (_req: Request, res: Response) => {
     res.json(users);
 });
   
-usersRoutes.get('/:id', verifyAuthToken, async (req: Request, res: Response) => {
+usersRoutes.get('/:id', verifyAuthToken, async (req: Request, res: Response) => {    
     try{
         const user = await store.show(req.params.id);
         if (user != null) {
@@ -42,12 +41,16 @@ usersRoutes.post('/', verifyAuthToken, async (req: Request, res: Response) => {
     }
     try {
         const newUser = await store.create(user);
-        var token = jwt.sign({ user: newUser }, process.env.TOKEN_SECRET as string);
-        res.json(token);
+        if (newUser != null) {
+            var token = jwt.sign({ user: newUser }, process.env.TOKEN_SECRET as string);
+            res.json(token);
+        } else {
+            res.json('Username taken');
+        }
     } catch(err) {
         res.status(400);
         res.json(`${err}` + user);
     }
 });
 
-export default usersRoutes
+export default usersRoutes;

@@ -34,7 +34,7 @@ These are the notes from a meeting with the frontend developer that describe wha
 - id: SERIAL PRIMARY KEY
 - firstName: varchar(255)
 - lastName: varchar(255)
-- password: varchar(255)
+- password_digest: varchar(255)
 
 #### Orders
 - id: SERIAL PRIMARY KEY
@@ -43,6 +43,6 @@ These are the notes from a meeting with the frontend developer that describe wha
 
 #### Order Products Associating Table
 - id: SERIAL PRIMARY KEY
-- quantit: INTEGER
+- quantity: INTEGER
 - order_id: bigint REFERENCES orders(id)
 - product_id bigint REFERENCES products(id)

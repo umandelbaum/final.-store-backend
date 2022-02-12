@@ -1,54 +1,127 @@
-# Storefront Backend Project
+# 1. INTRODUCTION AND FILE STRUCTURE
 
-## Getting Started
+This readme introduces my Store Backend API.  This API introduces a simple model of user, orders, and products.  It has handlers for users, orders, and products, and a handler for 'login' to allow someone to access their JWT so they can interact with other handlers.
 
-This repo contains a basic Node and Express app to get you started in constructing an API. To get started, clone this repo and run `yarn` in your terminal at the project root.
+## 1.1 INSTALLATION
 
-## Required Technologies
-Your application must make use of the following libraries:
-- Postgres for the database
-- Node/Express for the application logic
-- dotenv from npm for managing environment variables
-- db-migrate from npm for migrations
-- jsonwebtoken from npm for working with JWTs
-- jasmine from npm for testing
+1. Install all dependencies with "npm i"
+2. Setup the database acesses by updating the databae.json file.
+3. Setup a .env file with entries for POSTGRES_HOST, POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, BCRYPT_PASSWORD, SALT_ROUNDS (as an integer), TOKEN_SECRET, ADMIN_FIRST, ADMIN_LAST, and ADMIN_PASSWORD
+4. Migrate the database with 'npm run migrate up'
 
-## Steps to Completion
+At that point, the server can be started with "npm start" and accessed at **http://localhost:300/**
+**Whenever the server is started, it will automatically generate an Admin User in the database (from the .env file)  and will log the admin user's JWT to the console.  That JWT is needed to access many endpoints and to creat additional users.**
+Tests are run with "npm run test"
+The build is created with "npm run build"
 
-### 1. Plan to Meet Requirements
+## 1.2 FILE STRUCTURE
+All source files are in /src.  
+Models are found in /src/model.  
+Handlers are found in /src/handlers.  
+Tests are in /src/test/modelSpecs and /src/test/handlerSpecs.  
+There is one service function that verifies JWTs under /src/services
 
-In this repo there is a `REQUIREMENTS.md` document which outlines what this API needs to supply for the frontend, as well as the agreed upon data shapes to be passed between front and backend. This is much like a document you might come across in real life when building or extending an API. 
+# 2. DATA SHAPES
+## Product
+- id: SERIAL PRIMARY KEY
+- name: varchar(255)
+- price: MONEY
+- category: varchar(255)
 
-Your first task is to read the requirements and update the document with the following:
-- Determine the RESTful route for each endpoint listed. Add the RESTful route and HTTP verb to the document so that the frontend developer can begin to build their fetch requests.    
-**Example**: A SHOW route: 'blogs/:id' [GET] 
+## User
+- id: SERIAL PRIMARY KEY
+- firstName: varchar(255)
+- lastName: varchar(255)
+- password_digest: varchar(255)
 
-- Design the Postgres database tables based off the data shape requirements. Add to the requirements document the database tables and columns being sure to mark foreign keys.   
-**Example**: You can format this however you like but these types of information should be provided
-Table: Books (id:varchar, title:varchar, author:varchar, published_year:varchar, publisher_id:string[foreign key to publishers table], pages:number)
+## Orders
+- id: SERIAL PRIMARY KEY
+- user_id: bigint REFERENCES users(id)
+- status of order (active or complete) BOOLEAN
 
-**NOTE** It is important to remember that there might not be a one to one ratio between data shapes and database tables. Data shapes only outline the structure of objects being passed between frontend and API, the database may need multiple tables to store a single shape. 
+## Order Products Associating Table
+- id: SERIAL PRIMARY KEY
+- quantity: INTEGER
+- order_id: bigint REFERENCES orders(id)
+- product_id bigint REFERENCES products(id)
 
-### 2.  DB Creation and Migrations
+# 3. ENDPOINT OVERVIEW
 
-Now that you have the structure of the databse outlined, it is time to create the database and migrations. Add the npm packages dotenv and db-migrate that we used in the course and setup your Postgres database. If you get stuck, you can always revisit the database lesson for a reminder. 
+## 3.1 USERS ENDPOINTS
 
-You must also ensure that any sensitive information is hashed with bcrypt. If any passwords are found in plain text in your application it will not pass.
+### GET /users
+- Returns a JSON list of all users in the database
+- Requires a user's JWT to access
 
-### 3. Models
+### GET /users/:id
+- Returns the info of a given user as JSON
+- Returns 404 if the userid doesn't exist
+- Requires a user's JWT to access
 
-Create the models for each database table. The methods in each model should map to the endpoints in `REQUIREMENTS.md`. Remember that these models should all have test suites and mocks.
+### POST /users/
+- Requires a JSON blob in the request body in the following format:
+`{
+	first_name: <string>,
+	last_name: <string>,
+	password: <string>
+}`
+If the blob is missing a field, it will return an error.
+- If the user creation is successful, it will return a JSON of the new user's JWT
+- If the first_name and last_name are already in use, it will return an JSON error
+- Requires a user's JWT to post (use the admin JWT to create the first new user)
 
-### 4. Express Handlers
+## 3.2 PRODUCTS ENDPOINTS
 
-Set up the Express handlers to route incoming requests to the correct model method. Make sure that the endpoints you create match up with the enpoints listed in `REQUIREMENTS.md`. Endpoints must have tests and be CORS enabled. 
+### GET /products
+- Returns a JSON list of prodcuts in the database
 
-### 5. JWTs
+### GET /products?ranked=<integer>
+- Returns a JSON list of the most popular products that have been ordered, up to the integer given
 
-Add JWT functionality as shown in the course. Make sure that JWTs are required for the routes listed in `REQUIUREMENTS.md`.
+### GET /products?category=<string>
+- Returns a JSON list of all products of the given category
 
-### 6. QA and `README.md`
+### GET /products/:id
+- Returns a JSON blob of the requested product's information
+- Returns 404 if the product id doesn't exist
 
-Before submitting, make sure that your project is complete with a `README.md`. Your `README.md` must include instructions for setting up and running your project including how you setup, run, and connect to your database. 
+### POST /products
+- Requires a JSON blob in the request body in the following format:
+`{
+	name: <string>,
+	price: <number>,
+	category: <string>
+}`
+If the blob is missing a field, it will return an error.
+- If the product creation is successful, it will return a JSON blob of the new product in the database
+- Requires a user's JWT to access 
 
-Before submitting your project, spin it up and test each endpoint. If each one responds with data that matches the data shapes from the `REQUIREMENTS.md`, it is ready for submission!
+## 3.3 ORDERS ENDPOINTS
+
+### GET /orders
+- Returns a JSON list of orders in the database
+- Requires a user's JWT to access 
+
+### GET /orders?user=<integer>
+- Returns a JSON list of orders in the database that are associated with the given user ID
+- Requires a user's JWT to access 
+
+### GET /orders?user=<integer>&status=<boolean>
+- Returns a JSON list of orders in the database that are associated with the given user ID and have the given completion status
+- Requires a user's JWT to access 
+
+### GET /orders/:id
+- Returns a JSON blob of the requested orders's information
+- Returns 404 if the product id doesn't exist
+
+## 3.4 LOGIN ENDPOINT
+
+### POST /login
+- Requires a JSON blob in the request body in the following format:
+`{
+	first_name: <string>,
+	last_name: <string>,
+	password: <string>
+}`
+- If the blob matches a user in the database, returns a JWT for that user
+- Returns an error if the blob doesn't match a user in the database
