@@ -10,8 +10,11 @@ This readme introduces my Store Backend API.  This API introduces a simple model
 4. Migrate the database with 'npm run migrate up'
 
 At that point, the server can be started with "npm start" and accessed at **http://localhost:300/**
+
 **Whenever the server is started, it will automatically generate an Admin User in the database (from the .env file)  and will log the admin user's JWT to the console.  That JWT is needed to access many endpoints and to creat additional users.**
+
 Tests are run with "npm run test"
+
 The build is created with "npm run build"
 
 ## 1.2 FILE STRUCTURE
@@ -75,10 +78,10 @@ If the blob is missing a field, it will return an error.
 ### GET /products
 - Returns a JSON list of prodcuts in the database
 
-### GET /products?ranked=<integer>
+### GET /products?ranked=`<integer>`
 - Returns a JSON list of the most popular products that have been ordered, up to the integer given
 
-### GET /products?category=<string>
+### GET /products?category=`<string>`
 - Returns a JSON list of all products of the given category
 
 ### GET /products/:id
@@ -102,18 +105,18 @@ If the blob is missing a field, it will return an error.
 - Returns a JSON list of orders in the database
 - Requires a user's JWT to access 
 
-### GET /orders?user=<integer>
+### GET /orders?user=`<integer>`
 - Returns a JSON list of orders in the database that are associated with the given user ID
 - Requires a user's JWT to access 
 
-### GET /orders?user=<integer>&status=<boolean>
+### GET /orders?user=`<integer>`&status=`<boolean>`
 - Returns a JSON list of orders in the database that are associated with the given user ID and have the given completion status
 - Requires a user's JWT to access 
 
 ### GET /orders/:id
 - Returns a JSON blob of the requested orders's information
 - Returns 404 if the product id doesn't exist
-
+  
 ## 3.4 LOGIN ENDPOINT
 
 ### POST /login
