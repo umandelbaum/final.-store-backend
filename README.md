@@ -4,16 +4,17 @@ This readme introduces my Store Backend API.  This API introduces a simple model
 
 ## 1.1 INSTALLATION
 
-1. Install all dependencies with "npm i"
-2. Setup the database acesses by updating the databae.json file.
-3. Setup a .env file with entries for POSTGRES_HOST, POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, BCRYPT_PASSWORD, SALT_ROUNDS (as an integer), TOKEN_SECRET, ADMIN_FIRST, ADMIN_LAST, and ADMIN_PASSWORD
-4. Migrate the database with 'npm run migrate up'
+### Install all dependencies with "npm i"
 
-At that point, the server can be started with "npm start" and accessed at **http://localhost:300/**
+### Set up the database 
+- Create a .env file and fill it with the items required in section 1.3
+- Create a user in your postgres database and create the databases defined as POSTGRES_DB and POSTGRES_TEST_DB
+- Migrate the database by running the script 'npm run migrate up'
+- Migrate the test database by running the script 'npm run migrate_test_db_up'
+
+- At that point, the server can be started with the script "npm start" and accessed at **http://localhost:3000/**
 
 **Whenever the server is started, it will automatically generate an Admin User in the database (from the .env file)  and will log the admin user's JWT to the console.  That JWT is needed to access many endpoints and to creat additional users.**
-
-Tests are run with "npm run test"
 
 The build is created with "npm run build"
 
@@ -24,29 +25,41 @@ Handlers are found in /src/handlers.
 Tests are in /src/test/modelSpecs and /src/test/handlerSpecs.  
 There is one service function that verifies JWTs under /src/services
 
+## 1.3 REQUIRED ENVIRONMENT VARIABLES AND MY VALUES FOR THEM
+- POSTGRES_HOST: address of the postgres database host. My value: 127.0.0.1
+- POSTGRES_DB: name of the dev environment datbase.  My value: full_stack_dev
+- POSTGRES_TEST_DB: name of the test environment database. My value: fsd_test
+- POSTGRES_USER: name of the user to access the databases. My value: javascriptuser
+- POSTGRES_PASSWORD: password of the postgres user. My value: ****
+- POSTGRES_PORT: port on which to access the postgres host.  My value: 5432
+- BCRYPT_PASSWORD: the 'pepper' used to help secure passwords.  My value: **********
+- SALT_ROUNDS: an integer number of rounds used by bcrypt to salk.  My value: 10
+- TOKEN_SECRET: the secret to sign/validate generated JWTs. My value: **********
+- ADMIN_FIRST: the first part of the username for an admin user.  My value: adminfirst
+- ADMIN_LAST: the second part of the username for an admin user.  My value: adminlast
+- ADMIN_PASSWORD: the password for the admin user.  My value: ****
+- TEST_OR_DEV: sets the db migrate and database to the correct environment. MUST BE 'dev' for development. My value: test
+
+## 1.4 TESTING
+
+To run tests, ensure the .env TEST_OR_DEV variable is set to 'test'.  Then run the script "npm run test"
+
 # 2. DATA SHAPES
 ## Product
-- id: SERIAL PRIMARY KEY
-- name: varchar(255)
-- price: MONEY
-- category: varchar(255)
+| id: SERIAL PRIMARY KEY | name: varchar(255) | price: MONEY | category: varchar(255)|
+---
 
 ## User
-- id: SERIAL PRIMARY KEY
-- firstName: varchar(255)
-- lastName: varchar(255)
-- password_digest: varchar(255)
+| id: SERIAL PRIMARY KEY | firstName: varchar(255) | lastName: varchar(255) | password_digest: varchar(255) |
+---
 
 ## Orders
-- id: SERIAL PRIMARY KEY
-- user_id: bigint REFERENCES users(id)
-- status of order (active or complete) BOOLEAN
+| id: SERIAL PRIMARY KEY | user_id: bigint REFERENCES users(id) | status of order (active/complete) BOOLEAN |
+---
 
 ## Order Products Associating Table
-- id: SERIAL PRIMARY KEY
-- quantity: INTEGER
-- order_id: bigint REFERENCES orders(id)
-- product_id bigint REFERENCES products(id)
+| id: SERIAL PRIMARY KEY | quantity: INTEGER | order_id: bigint REFERENCES orders(id) | product_id bigint REFERENCES products(id) |
+---
 
 # 3. ENDPOINT OVERVIEW
 
